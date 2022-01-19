@@ -4,7 +4,7 @@
 		$asset = var['asset'];
 		$supply = var['supply'];
 		$cascading_donations_aa = "2QVJOY3BRRGWP7IOYL64O5BU3WLUJ4TZ"; // D3B42CWMY3A6I6GHC6KUJJSUKOCBE77U - livenet; ARJGCY7F33YB2HONUYQJ2FH6JK2AUJDM - testnet
-		$allow_repository = "byteball/ocore";
+		$repository = "byteball/ocore";
 	}`,
 	getters: `{
 		$is_allowed_tokens = $symbol => {
@@ -75,9 +75,9 @@
 				]
 			},
 			{
-				if: `{ $asset AND exists(trigger.data.repo) AND trigger.data.repo == $allow_repository AND is_valid_address(trigger.data.donor) AND trigger.data.amount AND trigger.data.asset AND trigger.address == $cascading_donations_aa }`,
+				if: `{ $asset AND exists(trigger.data.repo) AND trigger.data.repo == $repository AND is_valid_address(trigger.data.donor) AND trigger.data.amount AND trigger.data.asset AND trigger.address == $cascading_donations_aa }`,
 				init: `{
-					$send_amount = $asset_to_base(trigger.data.asset, trigger.data.amount);
+					$amount = $asset_to_base(trigger.data.asset, trigger.data.amount);
 				}`,
 				messages: [
 					{
@@ -85,14 +85,14 @@
 						payload: {
 							asset: `{ $asset }`,
 							outputs: [
-								{ address: "{ trigger.data.donor }", amount: "{ $send_amount }"},
+								{ address: "{ trigger.data.donor }", amount: "{ $amount }"},
 							]
 						}
 					},
 					{
 						app: 'state',
 						state: `{
-							var['supply'] += $send_amount;
+							var['supply'] += $amount;
 						}`
 					}
 				]
